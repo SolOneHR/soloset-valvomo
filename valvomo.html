@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Soloset Valvomo</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>IT-Valvomo</h1>
+    <button onclick="haeLogit()">Päivitä tiedot</button>
+    <br><br>
+
+    <table id="logTable">
+        <thead>
+            <tr>
+                <th>Aika</th>
+                <th>Palvelu</th>
+                <th>Viesti</th>
+            </tr>
+        </thead>
+        <tbody id="logBody">
+            </tbody>
+    </table>
+
+    <script>
+        // ASETUKSET - Korvaa nämä!
+        const SUPABASE_URL = 'https://oajnnrrnatqqymmvncxf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ham5ucnJuYXRxcXltbXZuY3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5Nzc2MDMsImV4cCI6MjA5MjU1MzYwM30.VwnyHdSeN286aGWLuoS-QMy1sZakMmCIwYjWsLh0AWA';
+
+        // MUUTOS TÄSSÄ: käytetään nimeä 'client' jotta se ei törmää kirjaston nimeen
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      async function haeLogit() {
+            console.log("Haetaan lokeja...");
+            
+            const { data, error } = await client
+                .from('system_logs')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Virhe haussa:', error);
+                return;
+            }
+
+            const tbody = document.getElementById('logBody');
+            tbody.innerHTML = ''; 
+
+            if (data && data.length > 0) {
+                data.forEach(log => {
+                    const row = document.createElement('tr');
+                    
+                    // Jos message on tyhjä, katsotaan mitä payloadissa on
+                    let viesti = log.message;
+                    if (!viesti || viesti === "") {
+                        // Muutetaan payload JSON-muotoon, jotta se näkyy tekstinä
+                        viesti = "Tyhjä viesti. Payload: " + JSON.stringify(log.payload);
+                    }
+
+                    row.innerHTML = `
+                        <td>${new Date(log.created_at).toLocaleString('fi-FI')}</td>
+                        <td>${log.service_name}</td>
+                        <td class="${log.log_level === 'ERROR' ? 'error' : ''}">${viesti}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3">Ei lokitietoja löytynyt.</td></tr>';
+            }
+        }
+
+
+        // Haetaan automaattisesti kun sivu latautuu
+        haeLogit();
+    </script>
+</body>
+</html>
