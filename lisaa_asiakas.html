@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Uuden asiakkaan lisäys</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 10px 0; }
+        button { background: #007bff; color: white; padding: 10px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Lisää uusi asiakas</h2>
+    <form id="asiakasForm">
+        <input type="text" id="nimi" placeholder="Asiakkaan nimi" required>
+        <input type="text" id="osoite" placeholder="Osoite" required>
+        <input type="text" id="puhelin" placeholder="Puhelinnumero">
+        
+        <select id="palvelu">
+            <option value="Siivous">Siivous</option>
+            <option value="Tekninen huolto">Tekninen huolto</option>
+            <option value="Asiointiapu">Asiointiapu</option>
+        </select>
+
+        <textarea id="lisatiedot" placeholder="Lisätietoja..."></textarea>
+        
+        <button type="submit">Tallenna asiakas</button>
+    </form>
+
+    <script>
+        // ASETUKSET - Korvaa nämä
+        const SUPABASE_URL = 'https://oajnnrrnatqqymmvncxf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ham5ucnJuYXRxcXltbXZuY3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5Nzc2MDMsImV4cCI6MjA5MjU1MzYwM30.VwnyHdSeN286aGWLuoS-QMy1sZakMmCIwYjWsLh0AWA';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('asiakasForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const { data, error } = await client
+                .from('asiakkaat') // Varmista, että taulun nimi on tämä
+                .insert([
+                    { 
+                        nimi: document.getElementById('nimi').value,
+                        osoite: document.getElementById('osoite').value,
+                        puhelin: document.getElementById('puhelin').value,
+                        palvelu: document.getElementById('palvelu').value,
+                        lisatiedot: document.getElementById('lisatiedot').value
+                    }
+                ]);
+
+            if (error) {
+                alert('Virhe tallennuksessa: ' + error.message);
+            } else {
+                alert('Asiakas tallennettu onnistuneesti!');
+                document.getElementById('asiakasForm').reset();
+            }
+        });
+    </script>
+</body>
+</html>
