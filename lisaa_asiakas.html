@@ -36,19 +36,29 @@
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // 1. Haetaan palvelut listaan sivun latautuessa
-        async function lataaPalvelut() {
-            const { data, error } = await client.from('palvelut').select('id, nimi');
-            if (data) {
-                const select = document.getElementById('palvelu_id');
-                data.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.id;
-                    opt.textContent = p.nimi;
-                    select.appendChild(opt);
-                });
-            }
+    async function lataaPalvelut() {
+        const select = document.getElementById('palvelu_id');
+        
+        // TYHJENNETÄÄN LISTA ENNEN LISÄYSTÄ (Tämä poistaa tuplaukset)
+        select.innerHTML = '<option value="">Valitse palvelu...</option>';
+
+        const { data, error } = await client.from('palvelut').select('id, nimi');
+        
+        if (error) {
+            console.error("Virhe ladattaessa palveluita:", error);
+            return;
         }
-        lataaPalvelut();
+
+        if (data) {
+            data.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.nimi;
+                select.appendChild(opt);
+            });
+        }
+    }
+    lataaPalvelut();
 
         // 2. Lomakkeen lähetys
         document.getElementById('asiakasForm').addEventListener('submit', async (e) => {
