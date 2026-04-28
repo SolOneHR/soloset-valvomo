@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Soloset - Etäsilmät Raportointi</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background: #f4f4f9; }
+        .box { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #333; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; padding: 15px; width: 100%; margin-top: 25px; font-size: 18px; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>Etäsilmät-raportti</h2>
+        
+        <label>Asiakas</label>
+        <select id="asiakas_id"><option value="">Ladataan...</option></select>
+
+        <label>Käynnin ajankohta</label>
+        <input type="datetime-local" id="kaynnin_ajankohta">
+
+        <label>Jääkaapin status</label>
+        <input type="text" id="jaakaappi_status" placeholder="Esim. OK / Täydennetty">
+
+        <label>Tekniikan status</label>
+        <input type="text" id="tekniikka_status" placeholder="Esim. Toimii / Korjaustarve">
+
+        <label>Yleisvointi</label>
+        <input type="text" id="yleisvointi" placeholder="Esim. Hyvä / Väsynyt">
+
+        <label>Mieliala</label>
+        <input type="text" id="mieliala" placeholder="Esim. Iloinen">
+
+        <label>Viesti omaiselle</label>
+        <textarea id="viesti_omaiselle" rows="3"></textarea>
+
+        <button onclick="lahetaRaportti()">Tallenna raportti</button>
+    </div>
+
+    <script>
+        // LISÄÄ TÄHÄN NE TIEDOT, JOTKA HAKISIT SUPABASESTA:
+        const SUPABASE_URL = 'https://oajnnrrnatqqymmvncxf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ham5ucnJuYXRxcXltbXZuY3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5Nzc2MDMsImV4cCI6MjA5MjU1MzYwM30.VwnyHdSeN286aGWLuoS-QMy1sZakMmCIwYjWsLh0AWA';
+        
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function lataaAsiakkaat() {
+            const { data, error } = await client.from('asiakkaat').select('id, nimi'); 
+            if (error) { console.error(error); return; }
+            const select = document.getElementById('asiakas_id');
+            select.innerHTML = '<option value="">Valitse asiakas...</option>';
+            data.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id; opt.textContent = a.nimi;
+                select.appendChild(opt);
+            });
+        }
+
+        async function lahetaRaportti() {
+            // Huomaa: näiden avainten on vastattava täsmälleen SQL-taulun sarakkeita
+            const raporttiData = {
+                asiakas_id: document.getElementById('asiakas_id').value,
+                kaynnin_ajankohta: document.getElementById('kaynnin_ajankohta').value,
+                jaakaappi_status: document.getElementById('jaakaappi_status').value,
+                tekniikka_status: document.getElementById('tekniikka_status').value,
+                yleisvointi: document.getElementById('yleisvointi').value,
+                mieliala: document.getElementById('mieliala').value,
+                viesti_omaiselle: document.getElementById('viesti_omaiselle').value
+            };
+
+            const { error } = await client.from('etasilmat_raportit').insert([raporttiData]);
+
+            if (error) {
+                console.error(error);
+                alert('Virhe tallennuksessa: ' + error.message);
+            } else {
+                alert('Raportti tallennettu!');
+                location.reload(); 
+            }
+        }
+
+        lataaAsiakkaat();
+    </script>
+</body>
+</html>
