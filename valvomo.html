@@ -33,49 +33,54 @@
 
     <script>
        
-
       async function haeLogit() {
-            console.log("Haetaan lokeja...");
-            
-            const { data, error } = await client
-                .from('system_logs')
-                .select('*')
-                .order('created_at', { ascending: false });
+    console.log("Haetaan lokeja...");
+    const tbody = document.getElementById('logBody');
+    tbody.innerHTML = '<tr><td colspan="3">Ladataan...</td></tr>';
 
-            if (error) {
-                console.error('Virhe haussa:', error);
-                return;
-            }
-
-            const tbody = document.getElementById('logBody');
-            tbody.innerHTML = ''; 
-
-            if (data && data.length > 0) {
-                data.forEach(log => {
-                    const row = document.createElement('tr');
-                    
-                    // Jos message on tyhjä, katsotaan mitä payloadissa on
-                    let viesti = log.message;
-                    if (!viesti || viesti === "") {
-                        // Muutetaan payload JSON-muotoon, jotta se näkyy tekstinä
-                        viesti = "Tyhjä viesti. Payload: " + JSON.stringify(log.payload);
-                    }
-
-                    row.innerHTML = `
-                        <td>${new Date(log.created_at).toLocaleString('fi-FI')}</td>
-                        <td>${log.service_name}</td>
-                        <td class="${log.log_level === 'ERROR' ? 'error' : ''}">${viesti}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            } else {
-                tbody.innerHTML = '<tr><td colspan="3">Ei lokitietoja löytynyt.</td></tr>';
-            }
+    // Haetaan tiedot suoraan REST API:n kautta
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/system_logs?select=*&order=created_at.desc`, {
+        method: 'GET',
+        headers: {
+            'apikey': ANON_KEY,
+            'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+            'Content-Type': 'application/json'
         }
+    });
 
+    const data = await response.json();
 
-        // Haetaan automaattisesti kun sivu latautuu
-        haeLogit();
+    if (response.ok) {
+        tbody.innerHTML = ''; // Tyhjennetään latausviesti
+        
+        if (data && data.length > 0) {
+            data.forEach(log => {
+                const row = document.createElement('tr');
+                
+                // Viestin käsittely
+                let viesti = log.message;
+                if (!viesti || viesti === "") {
+                    viesti = "Tyhjä viesti. Payload: " + JSON.stringify(log.payload);
+                }
+
+                row.innerHTML = `
+                    <td>${new Date(log.created_at).toLocaleString('fi-FI')}</td>
+                    <td>${log.service_name}</td>
+                    <td class="${log.log_level === 'ERROR' ? 'error' : ''}">${viesti}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="3">Ei lokitietoja löytynyt.</td></tr>';
+        }
+    } else {
+        console.error("Virhe haussa:", data);
+        tbody.innerHTML = '<tr><td colspan="3" class="error">Virhe ladattaessa lokit.</td></tr>';
+    }
+}
+
+// Haetaan automaattisesti kun sivu latautuu
+haeLogit();
     </script>
 </body>
 </html>
