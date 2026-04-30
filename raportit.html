@@ -57,21 +57,10 @@
 
     if (response.ok) {
         console.log("Raportit ladattu:", data);
-        // TÄSSÄ KOHTAA SINULLA ON TODENNÄKÖISESTI KOODIA, JOKA NÄYTTÄÄ RAPORTIT LISTASSA
-        // Älä poista sitä koodia, vaan jätä se tähän if-blokin sisään
+        // Tähän väliin tulee se koodi, jolla näytät raportit sivulla
     } else {
         console.error("Virhe ladattaessa:", data);
         alert("Virhe raporttien latauksessa.");
-    }
-}
-
-    const data = await response.json();
-
-    if (response.ok) {
-        console.log("Raportit ladattu:", data);
-        // TÄHÄN JÄÄ SE KOODI, JOKA NÄYTTÄÄ RAPORTIT SIVULLA (esim. lista.innerHTML = ...)
-    } else {
-        console.error("Virhe ladattaessa:", data);
     }
 }
 
