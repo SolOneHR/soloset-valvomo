@@ -43,7 +43,7 @@
         async function lataaRaportit() {
     const lista = document.getElementById('raportti-lista');
 
-    // Haetaan tiedot suoraan Supabase REST API:n kautta
+    // Haetaan tiedot REST API:n kautta
     const response = await fetch(`${SUPABASE_URL}/rest/v1/etasilmat_raportit?select=*,asiakkaat(nimi)&order=kaynnin_ajankohta.desc`, {
         method: 'GET',
         headers: {
@@ -52,6 +52,18 @@
             'Content-Type': 'application/json'
         }
     });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        console.log("Raportit ladattu:", data);
+        // TÄSSÄ KOHTAA SINULLA ON TODENNÄKÖISESTI KOODIA, JOKA NÄYTTÄÄ RAPORTIT LISTASSA
+        // Älä poista sitä koodia, vaan jätä se tähän if-blokin sisään
+    } else {
+        console.error("Virhe ladattaessa:", data);
+        alert("Virhe raporttien latauksessa.");
+    }
+}
 
     const data = await response.json();
 
