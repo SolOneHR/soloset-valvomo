@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Lisää asiakas</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
         input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
@@ -30,8 +30,7 @@
     </form>
 
     <script>
-        const SUPABASE_URL = 'https://oajnnrrnatqqymmvncxf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ham5ucnJuYXRxcXltbXZuY3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5Nzc2MDMsImV4cCI6MjA5MjU1MzYwM30.VwnyHdSeN286aGWLuoS-QMy1sZakMmCIwYjWsLh0AWA';
+        
 
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
