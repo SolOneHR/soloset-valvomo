@@ -48,3 +48,8 @@ function tarkistaKirjautuminen() {
 
 // 3. Suorita vartija heti kun sivu latautuu
 tarkistaKirjautuminen();
+// Lisää tämä auth.js-tiedoston loppuun
+function kirjauduUlos() {
+    localStorage.removeItem('supabase_token');
+    window.location.href = 'login.html';
+}
