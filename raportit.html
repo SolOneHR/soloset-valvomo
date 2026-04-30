@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Etäsilmät - Raporttiarkisto</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
         .box { background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
@@ -39,9 +39,7 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://oajnnrrnatqqymmvncxf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ham5ucnJuYXRxcXltbXZuY3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5Nzc2MDMsImV4cCI6MjA5MjU1MzYwM30.VwnyHdSeN286aGWLuoS-QMy1sZakMmCIwYjWsLh0AWA';
-        
+       
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function lataaRaportit() {
