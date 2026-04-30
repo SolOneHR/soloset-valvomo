@@ -1,38 +1,15 @@
-const SUPABASE_URL = 'https://oajnnrrnatqqymmvncxf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ham5ucnJuYXRxcXltbXZuY3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5Nzc2MDMsImV4cCI6MjA5MjU1MzYwM30.VwnyHdSeN286aGWLuoS-QMy1sZakMmCIwYjWsLh0AWA';
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kirjaudu</title>
+</head>
+<body>
+    <h2>Soloset IT-valvomo</h2>
+    <input type="email" id="email" placeholder="Sähköposti">
+    <input type="password" id="password" placeholder="Salasana">
+    <button onclick="suoritaKirjautuminen()">Kirjaudu</button>
 
-// KIRJAUTUMINEN
-async function suoritaKirjautuminen() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: {
-            'apikey': ANON_KEY,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: email, password: password })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-        localStorage.setItem('supabase_token', data.access_token);
-        window.location.href = 'index.html'; // Ohjaus pääsivulle
-    } else {
-        alert('Kirjautuminen epäonnistui: ' + data.error_description);
-    }
-}
-
-// VARTIJA (Tarkistaa onko tokenia olemassa)
-function tarkistaKirjautuminen() {
-    const token = localStorage.getItem('supabase_token');
-    // Jos tokenia ei ole ja et ole login-sivulla, ohjaa takaisin login-sivulle
-    if (!token && !window.location.pathname.endsWith('login.html')) {
-        window.location.href = 'login.html';
-    }
-}
-
-// Suorita tarkistus heti kun sivu latautuu
-tarkistaKirjautuminen();
+    <script src="auth.js"></script>
+</body>
+</html>
