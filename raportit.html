@@ -40,20 +40,28 @@
 
     <script>
        
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         async function lataaRaportit() {
-            const lista = document.getElementById('raportti-lista');
-            
-            const { data, error } = await client
-                .from('etasilmat_raportit')
-                .select('*, asiakkaat(nimi)') 
-                .order('kaynnin_ajankohta', { ascending: false });
+    const lista = document.getElementById('raportti-lista');
 
-            if (error) { 
-                console.error(error); 
-                return; 
-            }
+    // Haetaan tiedot suoraan Supabase REST API:n kautta
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/etasilmat_raportit?select=*,asiakkaat(nimi)&order=kaynnin_ajankohta.desc`, {
+        method: 'GET',
+        headers: {
+            'apikey': ANON_KEY,
+            'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        console.log("Raportit ladattu:", data);
+        // TÄHÄN JÄÄ SE KOODI, JOKA NÄYTTÄÄ RAPORTIT SIVULLA (esim. lista.innerHTML = ...)
+    } else {
+        console.error("Virhe ladattaessa:", data);
+    }
+}
 
             lista.innerHTML = '';
             data.forEach(r => {
