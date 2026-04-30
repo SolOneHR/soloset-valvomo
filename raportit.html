@@ -41,6 +41,7 @@
     <script>
        
         async function lataaRaportit() {
+    // 1. Määritellään muuttuja 'lista' heti alussa
     const lista = document.getElementById('raportti-lista');
 
     // Haetaan tiedot REST API:n kautta
@@ -57,32 +58,29 @@
 
     if (response.ok) {
         console.log("Raportit ladattu:", data);
-        // Tähän väliin tulee se koodi, jolla näytät raportit sivulla
+        
+        // 2. Nyt 'lista' on olemassa ja toimii
+        lista.innerHTML = ''; 
+        data.forEach(r => {
+            const tr = document.createElement('tr');
+            const aika = r.kaynnin_ajankohta ? new Date(r.kaynnin_ajankohta).toLocaleString('fi-FI') : '-';
+            
+            tr.innerHTML = `
+                <td>${aika}</td>
+                <td>${r.asiakkaat ? r.asiakkaat.nimi : 'Tuntematon'}</td>
+                <td>${r.jaakaappi_status || '-'}</td>
+                <td>${r.tekniikka_status || '-'}</td>
+                <td>${r.yleisvointi || '-'}</td>
+                <td>${r.mieliala || '-'}</td>
+                <td>${r.viesti_omaiselle || '-'}</td>
+            `;
+            lista.appendChild(tr);
+        });
     } else {
         console.error("Virhe ladattaessa:", data);
         alert("Virhe raporttien latauksessa.");
     }
 }
-
-            lista.innerHTML = '';
-            data.forEach(r => {
-                const tr = document.createElement('tr');
-                const aika = r.kaynnin_ajankohta ? new Date(r.kaynnin_ajankohta).toLocaleString('fi-FI') : '-';
-                
-                tr.innerHTML = `
-                    <td>${aika}</td>
-                    <td>${r.asiakkaat ? r.asiakkaat.nimi : 'Tuntematon'}</td>
-                    <td>${r.jaakaappi_status || '-'}</td>
-                    <td>${r.tekniikka_status || '-'}</td>
-                    <td>${r.yleisvointi || '-'}</td>
-                    <td>${r.mieliala || '-'}</td>
-                    
-                    
-                    
-                    <td>${r.viesti_omaiselle || '-'}</td>
-                `;
-                lista.appendChild(tr);
-            });
 
 
         lataaRaportit();
