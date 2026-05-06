@@ -30,33 +30,37 @@
 
     <script>
         // 1. Haetaan palvelut listaan fetch-metodilla
-        async function lataaPalvelut() {
-            const select = document.getElementById('palvelu_id');
-            
-            try {
-                // Käytetään fetchiä suoraan REST API:n kautta
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/palvelut?select=id,nimi`, {
-                    headers: {
-                        'apikey': ANON_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`, //
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data && Array.isArray(data)) {
-                    data.forEach(p => {
-                        const opt = document.createElement('option');
-                        opt.value = p.id;
-                        opt.textContent = p.nimi;
-                        select.appendChild(opt);
-                    });
-                }
-            } catch (err) {
-                console.error("Virhe ladattaessa palveluita:", err);
+      async function lataaPalvelut() {
+    const select = document.getElementById('palvelu_id');
+    
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/palvelut?select=id,nimi`, {
+            headers: {
+                'apikey': ANON_KEY,
+                'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+                'Content-Type': 'application/json'
             }
+        });
+
+        const data = await response.json();
+        
+        // TÄMÄ RIVI PALJASTAA VIAN:
+        console.log("Tietokannasta tullut vastaus:", data);
+
+        if (data && Array.isArray(data)) {
+            data.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.nimi;
+                select.appendChild(opt);
+            });
+        } else {
+            console.warn("Datan muoto ei ollut odotettu tai se on tyhjä");
         }
+    } catch (err) {
+        console.error("Virhe ladattaessa palveluita:", err);
+    }
+}
 
         // 2. Lomakkeen lähetys fetch-metodilla
         document.getElementById('asiakasForm').addEventListener('submit', async (e) => {
