@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Soloset - Etäsilmät Raportointi</title>
-   
     <script src="auth.js"></script>
-    
     <style>
         body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background: #f4f4f9; }
         .box { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
@@ -15,53 +13,58 @@
     </style>
 </head>
 <body>
-
     <div class="box">
         <h2>Etäsilmät-raportti</h2>
-        
         <label>Asiakas</label>
         <select id="asiakas_id"><option value="">Ladataan...</option></select>
 
         <label>Käynnin ajankohta</label>
         <input type="datetime-local" id="kaynnin_ajankohta">
-
         <label>Jääkaapin status</label>
         <input type="text" id="jaakaappi_status" placeholder="Esim. OK / Täydennetty">
-
         <label>Tekniikan status</label>
         <input type="text" id="tekniikka_status" placeholder="Esim. Toimii / Korjaustarve">
-
         <label>Yleisvointi</label>
         <input type="text" id="yleisvointi" placeholder="Esim. Hyvä / Väsynyt">
-
         <label>Mieliala</label>
         <input type="text" id="mieliala" placeholder="Esim. Iloinen">
-
         <label>Viesti omaiselle</label>
         <textarea id="viesti_omaiselle" rows="3"></textarea>
-
+        
         <button onclick="lahetaRaportti()">Tallenna raportti</button>
     </div>
 
     <script>
-        // LISÄÄ TÄHÄN NE TIEDOT, JOTKA HAKISIT SUPABASESTA:
-        
-        const client = window.supabase;
-
+        // Haetaan asiakaslista
         async function lataaAsiakkaat() {
-            const { data, error } = await client.from('asiakkaat').select('id, nimi'); 
-            if (error) { console.error(error); return; }
-            const select = document.getElementById('asiakas_id');
-            select.innerHTML = '<option value="">Valitse asiakas...</option>';
-            data.forEach(a => {
-                const opt = document.createElement('option');
-                opt.value = a.id; opt.textContent = a.nimi;
-                select.appendChild(opt);
-            });
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/asiakkaat?select=id,nimi`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                const select = document.getElementById('asiakas_id');
+                select.innerHTML = '<option value="">Valitse asiakas...</option>';
+                
+                if (Array.isArray(data)) {
+                    data.forEach(a => {
+                        const opt = document.createElement('option');
+                        opt.value = a.id;
+                        opt.textContent = a.nimi;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error("Virhe asiakkaiden latauksessa:", err);
+            }
         }
 
+        // Lähetetään raportti
         async function lahetaRaportti() {
-            // Huomaa: näiden avainten on vastattava täsmälleen SQL-taulun sarakkeita
             const raporttiData = {
                 asiakas_id: document.getElementById('asiakas_id').value,
                 kaynnin_ajankohta: document.getElementById('kaynnin_ajankohta').value,
@@ -72,19 +75,31 @@
                 viesti_omaiselle: document.getElementById('viesti_omaiselle').value
             };
 
-            const { error } = await client.from('etasilmat_raportit').insert([raporttiData]);
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/etasilmat_raportit`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(raporttiData)
+                });
 
-            if (error) {
-                console.error(error);
-                alert('Virhe tallennuksessa: ' + error.message);
-            } else {
-                alert('Raportti tallennettu!');
-                location.reload(); 
+                if (response.ok) {
+                    alert('Raportti tallennettu!');
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert('Virhe tallennuksessa: ' + JSON.stringify(errorData));
+                }
+            } catch (err) {
+                console.error("Virhe lähetyksessä:", err);
             }
         }
 
         lataaAsiakkaat();
     </script>
-   
 </body>
 </html>
