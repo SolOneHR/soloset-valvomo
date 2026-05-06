@@ -45,7 +45,6 @@
         // LISÄÄ TÄHÄN NE TIEDOT, JOTKA HAKISIT SUPABASESTA:
         
         
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function lataaAsiakkaat() {
             const { data, error } = await client.from('asiakkaat').select('id, nimi'); 
