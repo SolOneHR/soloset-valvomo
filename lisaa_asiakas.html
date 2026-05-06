@@ -45,7 +45,6 @@
                 });
 
                 const data = await response.json();
-                console.log("Tietokannasta tullut vastaus:", data);
 
                 if (data && Array.isArray(data)) {
                     select.innerHTML = '<option value="">Valitse palvelu...</option>';
