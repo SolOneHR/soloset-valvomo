@@ -46,7 +46,7 @@
     <script>
         // LISÄÄ TÄHÄN NE TIEDOT, JOTKA HAKISIT SUPABASESTA:
         
-        
+        const client = window.supabase;
 
         async function lataaAsiakkaat() {
             const { data, error } = await client.from('asiakkaat').select('id, nimi'); 
