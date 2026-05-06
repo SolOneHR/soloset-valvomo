@@ -25,64 +25,78 @@
         </select>
 
         <textarea id="erityishuomiot" placeholder="Erityishuomiot..."></textarea>
-        
         <button type="submit">Tallenna asiakas</button>
     </form>
 
     <script>
-        
+        // 1. Haetaan palvelut listaan fetch-metodilla
+        async function lataaPalvelut() {
+            const select = document.getElementById('palvelu_id');
+            
+            try {
+                // Käytetään fetchiä suoraan REST API:n kautta
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/palvelut?select=id,nimi`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`, //
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const data = await response.json();
 
-        // 1. Haetaan palvelut listaan sivun latautuessa
-    async function lataaPalvelut() {
-        const select = document.getElementById('palvelu_id');
-        
-        // TYHJENNETÄÄN LISTA ENNEN LISÄYSTÄ (Tämä poistaa tuplaukset)
-        select.innerHTML = '<option value="">Valitse palvelu...</option>';
-
-        const { data, error } = await client.from('palvelut').select('id, nimi');
-        
-        if (error) {
-            console.error("Virhe ladattaessa palveluita:", error);
-            return;
+                if (data && Array.isArray(data)) {
+                    data.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.nimi;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error("Virhe ladattaessa palveluita:", err);
+            }
         }
 
-        if (data) {
-            data.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = p.nimi;
-                select.appendChild(opt);
-            });
-        }
-    }
-    lataaPalvelut();
-
-        // 2. Lomakkeen lähetys
+        // 2. Lomakkeen lähetys fetch-metodilla
         document.getElementById('asiakasForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const { error } = await client
-                .from('asiakkaat')
-                .insert([
-                    { 
-                        nimi: document.getElementById('nimi').value,
-                        osoite: document.getElementById('osoite').value,
-                        puhelinnumero: document.getElementById('puhelinnumero').value,
-                        sahkoposti: document.getElementById('sahkoposti').value,
-                        palvelu_id: document.getElementById('palvelu_id').value || null,
-                        erityishuomiot: document.getElementById('erityishuomiot').value
-                    }
-                ]);
+            const uusiAsiakas = {
+                nimi: document.getElementById('nimi').value,
+                osoite: document.getElementById('osoite').value,
+                puhelinnumero: document.getElementById('puhelinnumero').value,
+                sahkoposti: document.getElementById('sahkoposti').value,
+                palvelu_id: document.getElementById('palvelu_id').value || null,
+                erityishuomiot: document.getElementById('erityishuomiot').value
+            };
 
-            if (error) {
-                alert('Virhe tallennuksessa: ' + error.message);
-            } else {
-                alert('Asiakas tallennettu!');
-                document.getElementById('asiakasForm').reset();
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/asiakkaat`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`, //
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(uusiAsiakas)
+                });
+
+                if (response.ok) {
+                    alert('Asiakas tallennettu!');
+                    document.getElementById('asiakasForm').reset();
+                } else {
+                    const errData = await response.json();
+                    alert('Virhe tallennuksessa: ' + JSON.stringify(errData));
+                }
+            } catch (err) {
+                console.error("Virhe lähetyksessä:", err);
             }
         });
+
+        // Käynnistetään haku
+        lataaPalvelut();
     </script>
 </body>
 </html>
